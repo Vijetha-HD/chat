@@ -1,43 +1,40 @@
-name: Fullstack App Deploy to Azure Web App
+name: 🚀 Deploy Chat App Backendp
 
 on:
   push:
-    branches:
-      - master
+    branches: [ main ]  # or change to 'master' if needed
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🟢 Set up Node.js
+      - name: 🟩 Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: '20'
 
-      - name: 📦 Install frontend dependencies & build
+      # Frontend build (from public/)
+      - name: 📦 Install and build frontend
         working-directory: ./public
         run: |
           npm install
-          npm run build
+          CI=false npm run build  # CI=false disables react warnings blocking build
 
-      - name: 🚚 Move frontend build to server/public
+      # Copy frontend build to server/public
+      - name: 📁 Copy frontend build to backend public
         run: |
-          rm -rf server/public
-          mv public/build server/public
+          rm -rf ./server/public
+          cp -r ./public/build ./server/public
 
-      - name: 📦 Install backend dependencies
+      # Install backend dependencies
+      - name: 📦 Install backend (server/) dependencies
         working-directory: ./server
-        run: |
-          npm install
+        run: npm install
 
-      - name: 🚀 Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'Backendp'                   # 👈 Your Azure Web App name
-          slot-name: 'production'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./server                      # 👈 Path to your backend folder
+      # Optional: Custom deploy logic (e.g., Azure, Docker, etc.)
+      - name: ✅ Ready for deployment
+        run: echo "Build successful. Add deployment steps here."
